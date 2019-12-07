@@ -12,27 +12,11 @@ public class Main {
     public static void main(String[] args) {
 	// write your code here
         print(t(1,2));
-        String s = "baaab";
 
-        Parser<String> p =                    satisfy(c->c=='{')            .bind(
-                                        c1 -> satisfy(c->c=='t')            .bind(
-                                        c2 -> satisfy(c->c=='t')            .bind(
-                                        c3 -> pure( (new StringBuilder()
-                                                            .append(c1)
-                                                            .append(c2)
-                                                            .append(c3)
-                                                            .toString()))
-                                        )));
-
-        Parser<String> p1 =  str("abb");
-        Parser<String> p2 =  str("abc");
-        Parser<String> p3 = p1.alt(p2);
-
-        Parser<Character> p0 = chr('a');
-
-        Parser<List<Character>> p4 = _many(p0);
-
-        Either<ParseError,ParseResults<List<Character>>> results = test(s,p4);
+        Parser<String> p0 = _str("aac");
+        Parser<FList<String>> p4 = many(p0);
+        String s = "aacaacaacaacaacaacaacaad";
+        Either<ParseError,ParseResults<FList<String>>> results = test(s,p4);
         print(results.toString());
         print("Finished...");
     }

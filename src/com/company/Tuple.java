@@ -25,4 +25,12 @@ class Tuple<A,B>{
     public static <A,B> Tuple<A,B> t(A a, B b){
         return new Tuple<>(a,b);
     }
+
+    public static <A,B> A fst(Tuple<A,B> t){
+        return t.getA();
+    }
+
+    public static <A,B> B snd(Tuple<A,B> t){
+        return t.getB();
+    }
 }

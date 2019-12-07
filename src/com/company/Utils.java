@@ -1,6 +1,4 @@
 package com.company;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -13,7 +11,7 @@ public class Utils {
         return new Parser<Character>(s ->{
             if (s.length() > 0){
                 Character c = s.charAt(0);
-                String rest = s.substring(1);
+                String rest = s.substring(1); //this is slow!
                 return result(t(c,rest));
             } else {
                 return ParseResults.empty();
@@ -53,70 +51,37 @@ public class Utils {
         if (str.length() == 0){
             return pure(str);
         }
-        StringBuilder s = new StringBuilder();
-        Parser<Character> p = chr(str.charAt(0));
-        for (Character chr : str.substring(1).toCharArray()){
-            p = p.bind(c -> {
-                s.append(c);
-                return chr(chr);
-            });
+        return chr(str.charAt(0))       .bind(c ->
+                str(str.substring(1))    .bind(cs ->
+                        pure(c + cs)));
+
+    }
+
+    public static Parser<String> _str(String str){
+        return str_fast(str).bind(cs -> pure(cs.reverse().toString()));
+    }
+
+    private static Parser<StringBuilder> str_fast(String str){
+        if (str.length() == 0){
+            return pure(new StringBuilder());
         }
-        return p.bind(c -> pure(s.append(c).toString()));
+        return chr(str.charAt(0))       .bind(c ->
+                str_fast(str.substring(1))    .bind(cs ->
+                        pure(cs.append(c))));
+
     }
 
-    public static <A> Parser<List<A>> _many(Parser<A> p){
-        return _many1(p).alt(pure(new ArrayList<A>()));
+    public static <A> Parser<FList<A>> many(Parser<A> p){
+        return many1(p).alt(pure(new Empty<A>()));
     }
 
-    public static <A> Parser<List<A>> _many1(Parser<A> p){
-        List<A> list = new ArrayList<>();
-        Parser<List<A>> r = p.bind(a -> {
-            list.add(a);
-            return _many(p);
-        });
-        return r.bind(a-> {
-            list.addAll(a);
-            return  pure(list);
-        });
+    public static <A> Parser many1(Parser<A> p){
+        return  p           .bind(x ->
+                many(p)     .bind(xs ->
+                pure(new Cons(x,xs))        ));
     }
 
-    public static <A> Parser<List<A>> many(Parser<A> p){
-        return new Parser<List<A>>(
-                s-> {
-                    String cache = s;
-                    ArrayList<A> list = new ArrayList<A>();
-                    while (true){
-                        ParseResults<A> r = parse(p.alt(Parser.empty())).apply(cache);
-                        if (r.size() == 0)
-                            break;
-                        list.add(r.get(0).getA());
-                        cache = r.get(0).getB();
-                    }
-                    return result(t(list,cache));
-                });
-    }
 
-    public static <A> Parser<List<A>> many1(Parser<A> p){
-        return new Parser<List<A>>(
-                s-> {
-                    String cache = s;
-                    ArrayList<A> list = new ArrayList<A>();
-                    ParseResults<A> r0 = parse(p).apply(cache);
-                    if (r0.size() > 0){
-                        list.add(r0.get(0).getA());
-                        cache = r0.get(0).getB();
-                        while (true){
-                            ParseResults<A> r = parse(p.alt(Parser.empty())).apply(cache);
-                            if (r.size() == 0)
-                                break;
-                            list.add(r.get(0).getA());
-                            cache = r.get(0).getB();
-                        }
-                        return result(t(list,cache));
-                    } else
-                        return ParseResults.empty();
-                });
-    }
 
     public static <A> Either<ParseError,ParseResults<A>> test(String s, Parser<A> p){
         ParseResults<A> results = parse(p).apply(s);
