@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.function.Function;
 import static com.company.Tuple.*;
 
-class ParseResults<A> extends ArrayList<Tuple<A,String>> {
-    public static <A> ParseResults<A> result(Tuple<A,String> t){
+class ParseResults<A> extends ArrayList<Tuple<A,Text>> {
+    public static <A> ParseResults<A> result(Tuple<A,Text> t){
         ParseResults<A> pr = new ParseResults<A>();
         pr.add(t);
         return pr;
@@ -18,9 +18,9 @@ class ParseResults<A> extends ArrayList<Tuple<A,String>> {
 }
 
 class Parser<A> {
-    private final Function<String,ParseResults<A>> f;
+    private final Function<Text,ParseResults<A>> f;
 
-    public Parser(Function<String,ParseResults<A>> f){
+    public Parser(Function<Text,ParseResults<A>> f){
         this.f =f;
     }
 
@@ -40,10 +40,10 @@ class Parser<A> {
            ParseResults<A> results = parse(this).apply(s);
 
            ParseResults<B> prb = ParseResults.empty();
-           for (Tuple<A,String> r : results){
+           for (Tuple<A,Text> r : results){
                Parser<B> pb = f.apply(r.getA());
                ParseResults<B> bResults = parse(pb).apply(r.getB());
-               for (Tuple<B,String> br : bResults){
+               for (Tuple<B,Text> br : bResults){
                    prb.add(br);
                }
            }
@@ -65,7 +65,7 @@ class Parser<A> {
         });
     }
 
-    public static <A> Function<String,ParseResults<A>> parse(Parser<A> p){
+    public static <A> Function<Text,ParseResults<A>> parse(Parser<A> p){
         return p.f;
     }
 

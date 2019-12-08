@@ -23,12 +23,7 @@ public class Cons<T> extends FList<T> {
 
     @Override
     public String toString() {
-        if (tail instanceof Empty){
-            return head.toString();
-        } else{
-            return head.toString() + ":" +tail.toString();
-        }
-
+        return head.toString() + ":" +tail.toString();
     }
 }
 
@@ -40,6 +35,6 @@ class Empty<A> extends FList<A>
 
     @Override
     public String toString() {
-        return "";
+        return "[]";
     }
 }

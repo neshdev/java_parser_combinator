@@ -16,7 +16,8 @@ public class Main {
         Parser<String> p0 = _str("aac");
         Parser<FList<String>> p4 = many(p0);
         String s = "aacaacaacaacaacaacaacaad";
-        Either<ParseError,ParseResults<FList<String>>> results = test(s,p4);
+        Text t = new Text(s);
+        Either<ParseError,ParseResults<FList<String>>> results = test(t,p4);
         print(results.toString());
         print("Finished...");
     }

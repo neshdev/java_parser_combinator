@@ -9,9 +9,9 @@ import static com.company.ParseResults.*;
 public class Utils {
     public static Parser<Character> item(){
         return new Parser<Character>(s ->{
-            if (s.length() > 0){
-                Character c = s.charAt(0);
-                String rest = s.substring(1); //this is slow!
+            if (s.canAdvance()){
+                Character c = s.head();
+                Text rest = s.advance();
                 return result(t(c,rest));
             } else {
                 return ParseResults.empty();
@@ -23,7 +23,7 @@ public class Utils {
         return new Parser<Character>(s -> {
             ParseResults<Character> r = parse(item()).apply(s);
             if (r.size() > 0){
-                Tuple<Character,String> t = r.get(0);
+                Tuple<Character,Text> t = r.get(0);
                 if (predicate.apply(t.getA())){
                     return r;
                 } else {
@@ -83,7 +83,7 @@ public class Utils {
 
 
 
-    public static <A> Either<ParseError,ParseResults<A>> test(String s, Parser<A> p){
+    public static <A> Either<ParseError,ParseResults<A>> test(Text s, Parser<A> p){
         ParseResults<A> results = parse(p).apply(s);
         if (results.size() > 0){
             return new Right(results);
